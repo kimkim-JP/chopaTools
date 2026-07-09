@@ -49,10 +49,10 @@ button {
 .studio-panel {
   border-right: 1px solid var(--line);
   background: var(--panel);
-  padding: 28px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 16px;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -93,7 +93,7 @@ h1 {
 
 .field {
   display: grid;
-  gap: 8px;
+  gap: 7px;
 }
 
 .field label {
@@ -109,12 +109,16 @@ h1 {
   background: white;
   color: var(--ink);
   border-radius: 8px;
-  padding: 12px;
+  padding: 10px 12px;
 }
 
 .field textarea {
-  min-height: 118px;
+  min-height: 92px;
   resize: vertical;
+}
+
+.field textarea.compact-textarea {
+  min-height: 64px;
 }
 
 .phrase-field {
@@ -124,7 +128,7 @@ h1 {
 .phrase-list {
   display: grid;
   gap: 8px;
-  max-height: 280px;
+  max-height: 300px;
   overflow-y: auto;
   padding-right: 4px;
 }

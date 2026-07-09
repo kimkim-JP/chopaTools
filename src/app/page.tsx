@@ -92,7 +92,7 @@ export default function Home() {
 
         <div className="field">
           <label htmlFor="style">画風</label>
-          <input id="style" value={style} onChange={(event) => setStyle(event.target.value)} />
+          <textarea id="style" className="compact-textarea" value={style} onChange={(event) => setStyle(event.target.value)} />
         </div>
 
         <div className="field">
