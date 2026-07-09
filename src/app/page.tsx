@@ -2,9 +2,8 @@
 
 import { useMemo, useState } from "react";
 
-const starterPhrases = ["ありがとう", "了解", "おつかれ", "ごめん", "OK", "最高", "いま行く", "またね"].join(
-  "\n"
-);
+const starterPhrases = ["ありがとう", "了解", "おつかれ", "ごめん", "OK", "最高", "いま行く", "またね"];
+const maxStampCount = 40;
 
 type GenerateResponse = {
   mode: "demo" | "api";
@@ -16,16 +15,34 @@ export default function Home() {
   const [character, setCharacter] = useState("丸くて小さな柴犬のキャラクター");
   const [mood, setMood] = useState("日常会話で使いやすい、明るく親しみやすい表情");
   const [style, setStyle] = useState("太めの線、フラットカラー、かわいい日本のスタンプ風");
-  const [phrases, setPhrases] = useState(starterPhrases);
+  const [phrases, setPhrases] = useState<string[]>(
+    Array.from({ length: maxStampCount }, (_, index) => starterPhrases[index] ?? "")
+  );
   const [count, setCount] = useState(8);
   const [images, setImages] = useState<string[]>([]);
   const [status, setStatus] = useState("まずは8枚で雰囲気を確認できます。");
   const [loading, setLoading] = useState(false);
+  const [phraseScrollTop, setPhraseScrollTop] = useState(0);
 
   const phraseCount = useMemo(
-    () => phrases.split(/\r?\n/).slice(0, count).filter((phrase) => phrase.trim()).length,
+    () => phrases.slice(0, count).filter((phrase) => phrase.trim()).length,
     [phrases, count]
   );
+
+  const phraseText = useMemo(() => phrases.slice(0, count).join("\n"), [phrases, count]);
+
+  function updatePhraseText(value: string) {
+    const lines = value.split(/\r?\n/);
+    setPhrases((current) =>
+      current.map((phrase, index) => {
+        if (index >= count) {
+          return phrase;
+        }
+
+        return lines[index] ?? "";
+      })
+    );
+  }
 
   async function generate() {
     setLoading(true);
@@ -35,7 +52,7 @@ export default function Home() {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ character, mood, style, phrases, count })
+        body: JSON.stringify({ character, mood, style, phrases: phraseText, count })
       });
       const data = (await response.json()) as GenerateResponse;
 
@@ -105,15 +122,19 @@ export default function Home() {
           <label htmlFor="phrases">入れたい短文</label>
           <div className="phrase-editor">
             <div className="phrase-numbers" aria-hidden="true">
-              {Array.from({ length: count }, (_, index) => (
-                <span key={index + 1}>No.{index + 1}</span>
-              ))}
+              <div className="phrase-number-track" style={{ transform: `translateY(-${phraseScrollTop}px)` }}>
+                {Array.from({ length: count }, (_, index) => (
+                  <span key={index + 1}>No.{index + 1}</span>
+                ))}
+              </div>
             </div>
             <textarea
               id="phrases"
-              value={phrases}
-              onChange={(event) => setPhrases(event.target.value)}
+              value={phraseText}
+              onChange={(event) => updatePhraseText(event.target.value)}
+              onScroll={(event) => setPhraseScrollTop(event.currentTarget.scrollTop)}
               placeholder="1行に1つずつ短文を入力"
+              wrap="off"
             />
           </div>
           <p className="fineprint">
