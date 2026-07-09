@@ -121,15 +121,19 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="actions single">
-          <button className="primary" disabled={loading} onClick={generate} type="button">
-            {loading ? "生成中" : "生成"}
-          </button>
-        </div>
+        <div className="panel-spacer" />
 
-        <p className="fineprint">
-          Vercel公開直後はデモモードで動かせます。OpenAI APIキーを設定すると実画像生成に切り替わります。
-        </p>
+        <div className="panel-footer">
+          <div className="actions single">
+            <button className="primary" disabled={loading} onClick={generate} type="button">
+              {loading ? "生成中" : "生成"}
+            </button>
+          </div>
+
+          <p className="fineprint">
+            Vercel公開直後はデモモードで動かせます。OpenAI APIキーを設定すると実画像生成に切り替わります。
+          </p>
+        </div>
       </aside>
 
       <section className="workspace">
