@@ -30,14 +30,17 @@ export async function POST(request: Request) {
     phrases: body.phrases ?? "",
     textColor: body.textColor ?? "#111111",
     strokeColor: body.strokeColor ?? "#ffffff",
-    strokeWidth: Number(body.strokeWidth ?? 3)
+    strokeWidth: Number(body.strokeWidth ?? 3),
+    fontStyle: body.fontStyle ?? "rounded Gothic Japanese lettering"
   };
   const sheetCount = Math.ceil(count / 8);
   const phrases = input.phrases.split(/\r?\n/).map((phrase) => phrase.trim());
+  const prompts = Array.from({ length: sheetCount }, (_, sheetIndex) => buildStampSheetPrompt(input, sheetIndex));
 
   if (process.env.NEXT_PUBLIC_DEMO_MODE === "true" || !process.env.OPENAI_API_KEY) {
     return NextResponse.json({
       mode: "demo",
+      prompts,
       sheets: Array.from({ length: sheetCount }, (_, sheetIndex) =>
         demoSheetSvgDataUrl({
           labels: phrases.slice(sheetIndex * 8, sheetIndex * 8 + 8),
@@ -57,7 +60,7 @@ export async function POST(request: Request) {
   for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex += 1) {
     const result = await client.images.generate({
       model,
-      prompt: buildStampSheetPrompt(input, sheetIndex),
+      prompt: prompts[sheetIndex],
       size: "1024x1536",
       quality: "low",
       n: 1
@@ -71,5 +74,5 @@ export async function POST(request: Request) {
     sheets.push(`data:image/png;base64,${image}`);
   }
 
-  return NextResponse.json({ mode: "api", sheets });
+  return NextResponse.json({ mode: "api", prompts, sheets });
 }
