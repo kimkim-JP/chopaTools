@@ -135,8 +135,12 @@ h1 {
 
 .style-controls {
   display: grid;
-  grid-template-columns: 1fr 1fr 92px;
+  grid-template-columns: 1fr 1fr 1fr 92px;
   gap: 10px;
+}
+
+.font-select-field {
+  grid-column: 1 / -1;
 }
 
 .color-input {
@@ -297,6 +301,52 @@ h1 {
   padding: 9px 12px;
   color: var(--muted);
   font-size: 13px;
+}
+
+.prompt-preview {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.prompt-preview-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.prompt-preview h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.prompt-preview-head span,
+.prompt-preview summary {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.prompt-preview details {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.prompt-preview pre {
+  max-height: 220px;
+  overflow: auto;
+  margin: 8px 0 0;
+  border-radius: 8px;
+  background: #f7f6f1;
+  color: var(--ink);
+  padding: 12px;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-size: 12px;
 }
 
 .grid {

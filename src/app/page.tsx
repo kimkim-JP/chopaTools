@@ -4,12 +4,23 @@ import { useMemo, useState } from "react";
 
 const starterPhrases = ["ありがとう", "了解", "おつかれ", "ごめん", "OK", "最高", "いま行く", "またね"];
 const maxStampCount = 40;
+const fontStyleOptions = [
+  { label: "丸ゴシック", value: "rounded Gothic Japanese lettering" },
+  { label: "太ゴシック", value: "bold Gothic Japanese lettering" },
+  { label: "筆文字", value: "expressive Japanese brush calligraphy lettering" },
+  { label: "手書き", value: "friendly handwritten Japanese lettering" },
+  { label: "ポップ", value: "playful pop Japanese lettering" },
+  { label: "明朝", value: "elegant Mincho-style Japanese lettering" }
+];
 
 type GenerateResponse = {
   mode: "demo" | "api";
   sheets: string[];
+  prompts?: string[];
   error?: string;
 };
+
+const showPromptPreview = process.env.NEXT_PUBLIC_SHOW_PROMPT_PREVIEW !== "false";
 
 export default function Home() {
   const [character, setCharacter] = useState("丸くて小さな柴犬のキャラクター");
@@ -21,6 +32,7 @@ export default function Home() {
   const [textColor, setTextColor] = useState("#111111");
   const [strokeColor, setStrokeColor] = useState("#ffffff");
   const [strokeWidth, setStrokeWidth] = useState(3);
+  const [fontStyle, setFontStyle] = useState(fontStyleOptions[0].value);
   const [count, setCount] = useState(8);
   const [images, setImages] = useState<string[]>([]);
   const [status, setStatus] = useState("まずは8枚で雰囲気を確認できます。");
@@ -28,6 +40,7 @@ export default function Home() {
   const [phraseScrollTop, setPhraseScrollTop] = useState(0);
   const [mainImageIndex, setMainImageIndex] = useState(0);
   const [tabImageIndex, setTabImageIndex] = useState(0);
+  const [prompts, setPrompts] = useState<string[]>([]);
 
   const phraseCount = useMemo(
     () => phrases.slice(0, count).filter((phrase) => phrase.trim()).length,
@@ -57,7 +70,17 @@ export default function Home() {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ character, mood, style, phrases: phraseText, count, textColor, strokeColor, strokeWidth })
+        body: JSON.stringify({
+          character,
+          mood,
+          style,
+          phrases: phraseText,
+          count,
+          textColor,
+          strokeColor,
+          strokeWidth,
+          fontStyle
+        })
       });
       const data = (await response.json()) as GenerateResponse;
 
@@ -65,6 +88,7 @@ export default function Home() {
         throw new Error(data.error ?? "生成に失敗しました。");
       }
 
+      setPrompts(data.prompts ?? []);
       const splitImages = await splitSheetsIntoStamps(data.sheets, count);
       setImages(splitImages);
       setMainImageIndex(0);
@@ -125,7 +149,7 @@ export default function Home() {
         const sourceX = (index % 2) * cellWidth;
         const sourceY = Math.floor(index / 2) * cellHeight;
         const canvas = document.createElement("canvas");
-        canvas.width = 320;
+        canvas.width = 370;
         canvas.height = 320;
 
         const context = canvas.getContext("2d");
@@ -133,14 +157,14 @@ export default function Home() {
           continue;
         }
 
-        context.clearRect(0, 0, 320, 320);
+        context.clearRect(0, 0, 370, 320);
         context.imageSmoothingEnabled = true;
         context.imageSmoothingQuality = "high";
 
-        const scale = Math.min(320 / cellWidth, 320 / cellHeight);
+        const scale = Math.min(370 / cellWidth, 320 / cellHeight);
         const drawWidth = cellWidth * scale;
         const drawHeight = cellHeight * scale;
-        const drawX = (320 - drawWidth) / 2;
+        const drawX = (370 - drawWidth) / 2;
         const drawY = (320 - drawHeight) / 2;
 
         context.drawImage(image, sourceX, sourceY, cellWidth, cellHeight, drawX, drawY, drawWidth, drawHeight);
@@ -187,6 +211,16 @@ export default function Home() {
         </div>
 
         <div className="style-controls">
+          <div className="field font-select-field">
+            <label htmlFor="fontStyle">文字の種類</label>
+            <select id="fontStyle" value={fontStyle} onChange={(event) => setFontStyle(event.target.value)}>
+              {fontStyleOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="field">
             <label htmlFor="textColor">文字色</label>
             <div className="color-input">
@@ -279,6 +313,21 @@ export default function Home() {
             {status}
           </div>
         </div>
+
+        {showPromptPreview && prompts.length > 0 ? (
+          <div className="prompt-preview">
+            <div className="prompt-preview-head">
+              <h3>プロンプトプレビュー</h3>
+              <span>{prompts.length}シート分</span>
+            </div>
+            {prompts.map((prompt, index) => (
+              <details key={`${prompt}-${index}`} open={index === 0}>
+                <summary>Sheet {index + 1}</summary>
+                <pre>{prompt}</pre>
+              </details>
+            ))}
+          </div>
+        ) : null}
 
         {images.length > 0 ? (
           <>
