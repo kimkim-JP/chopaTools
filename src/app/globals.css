@@ -125,39 +125,32 @@ h1 {
   min-height: 0;
 }
 
-.phrase-list {
+.phrase-editor {
   display: grid;
-  gap: 8px;
-  max-height: 300px;
-  overflow-y: auto;
-  padding-right: 4px;
+  grid-template-columns: 48px 1fr;
+  align-items: stretch;
+  gap: 10px;
 }
 
-.phrase-row {
-  display: grid;
-  grid-template-columns: 54px 1fr;
-  align-items: center;
-  gap: 8px;
+.phrase-editor textarea {
+  min-height: 260px;
+  line-height: 1.8;
+  white-space: pre;
+  overflow: auto;
 }
 
-.phrase-row span {
+.phrase-numbers {
+  border: 1px solid transparent;
+  padding: 10px 0;
   color: var(--muted);
+  display: grid;
+  grid-auto-rows: 1.8em;
+  justify-items: end;
+  overflow: hidden;
   font-size: 12px;
   font-weight: 800;
-}
-
-.phrase-row input {
-  min-width: 0;
-  height: 38px;
-  padding: 8px 10px;
-}
-
-.phrase-row.muted {
-  opacity: 0.45;
-}
-
-.phrase-row.muted input {
-  background: #f7f6f1;
+  line-height: 1.8;
+  user-select: none;
 }
 
 .segmented {
