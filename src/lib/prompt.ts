@@ -7,6 +7,7 @@ export type StampRequest = {
   textColor: string;
   strokeColor: string;
   strokeWidth: number;
+  fontStyle: string;
 };
 
 export function buildStampSheetPrompt(input: StampRequest, sheetIndex: number) {
@@ -22,11 +23,11 @@ export function buildStampSheetPrompt(input: StampRequest, sheetIndex: number) {
     "Each grid cell must contain one complete sticker, centered with generous transparent padding.",
     "Do not draw grid lines, borders, frames, watermarks, shadows outside each sticker, or a background.",
     "The final image will be cropped by software into 8 equal cells, so keep every character and text fully inside its own cell.",
-    "Each cropped sticker must work as a LINE sticker at 320x320 PNG with transparent background.",
+    "Each cropped sticker must work as a LINE sticker at 370x320 PNG with transparent background.",
     `Character: ${input.character}.`,
     `Mood/action: ${input.mood}.`,
     `Visual style: ${input.style}.`,
-    `Text style: text color ${input.textColor}, outline color ${input.strokeColor}, outline width ${input.strokeWidth}px.`,
+    `Text style: ${input.fontStyle}, text color ${input.textColor}, outline color ${input.strokeColor}, outline width ${input.strokeWidth}px.`,
     "Use bold readable Japanese text. Keep the text short, centered near the top or bottom of each sticker, and never let it touch the crop edge.",
     "Use these texts in reading order, left to right, top to bottom:",
     ...sheetPhrases.map((phrase, index) => `${index + 1}. ${phrase || "no text"}`)
