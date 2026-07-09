@@ -117,6 +117,45 @@ h1 {
   resize: vertical;
 }
 
+.phrase-field {
+  min-height: 0;
+}
+
+.phrase-list {
+  display: grid;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.phrase-row {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.phrase-row span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.phrase-row input {
+  min-width: 0;
+  height: 38px;
+  padding: 8px 10px;
+}
+
+.phrase-row.muted {
+  opacity: 0.45;
+}
+
+.phrase-row.muted input {
+  background: #f7f6f1;
+}
+
 .segmented {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
