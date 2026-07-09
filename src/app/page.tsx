@@ -2,9 +2,8 @@
 
 import { useMemo, useState } from "react";
 
-const starterPhrases = ["ありがとう", "了解", "おつかれ", "ごめん", "OK", "最高", "いま行く", "またね"].join(
-  "\n"
-);
+const starterPhrases = ["ありがとう", "了解", "おつかれ", "ごめん", "OK", "最高", "いま行く", "またね"];
+const maxStampCount = 40;
 
 type GenerateResponse = {
   mode: "demo" | "api";
@@ -16,16 +15,27 @@ export default function Home() {
   const [character, setCharacter] = useState("丸くて小さな柴犬のキャラクター");
   const [mood, setMood] = useState("日常会話で使いやすい、明るく親しみやすい表情");
   const [style, setStyle] = useState("太めの線、フラットカラー、かわいい日本のスタンプ風");
-  const [phrases, setPhrases] = useState(starterPhrases);
+  const [phrases, setPhrases] = useState<string[]>(
+    Array.from({ length: maxStampCount }, (_, index) => starterPhrases[index] ?? "")
+  );
   const [count, setCount] = useState(8);
   const [images, setImages] = useState<string[]>([]);
   const [status, setStatus] = useState("まずは8枚で雰囲気を確認できます。");
   const [loading, setLoading] = useState(false);
 
   const phraseCount = useMemo(
-    () => phrases.split(/\r?\n/).filter((phrase) => phrase.trim()).length,
-    [phrases]
+    () => phrases.slice(0, count).filter((phrase) => phrase.trim()).length,
+    [phrases, count]
   );
+
+  const phraseText = useMemo(
+    () => phrases.slice(0, count).map((phrase) => phrase.trim()).join("\n"),
+    [phrases, count]
+  );
+
+  function updatePhrase(index: number, value: string) {
+    setPhrases((current) => current.map((phrase, phraseIndex) => (phraseIndex === index ? value : phrase)));
+  }
 
   async function generate() {
     setLoading(true);
@@ -35,7 +45,7 @@ export default function Home() {
       const response = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ character, mood, style, phrases, count })
+        body: JSON.stringify({ character, mood, style, phrases: phraseText, count })
       });
       const data = (await response.json()) as GenerateResponse;
 
@@ -101,10 +111,31 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="field">
+        <div className="field phrase-field">
           <label htmlFor="phrases">入れたい短文</label>
-          <textarea id="phrases" value={phrases} onChange={(event) => setPhrases(event.target.value)} />
-          <p className="fineprint">{phraseCount}個の短文をローテーションします。</p>
+          <div className="phrase-list" id="phrases">
+            {phrases.map((phrase, index) => {
+              const phraseNumber = index + 1;
+              const isActive = phraseNumber <= count;
+
+              return (
+                <label className={isActive ? "phrase-row" : "phrase-row muted"} key={phraseNumber}>
+                  <span>No.{phraseNumber}</span>
+                  <input
+                    aria-label={`短文 ${phraseNumber}`}
+                    disabled={!isActive}
+                    maxLength={12}
+                    onChange={(event) => updatePhrase(index, event.target.value)}
+                    placeholder={isActive ? "短文" : ""}
+                    value={phrase}
+                  />
+                </label>
+              );
+            })}
+          </div>
+          <p className="fineprint">
+            選択中の{count}枚に対して、{phraseCount}個の短文を使います。
+          </p>
         </div>
 
         <div className="actions single">
