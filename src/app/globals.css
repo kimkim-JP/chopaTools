@@ -133,6 +133,27 @@ h1 {
   min-height: 64px;
 }
 
+.style-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 92px;
+  gap: 10px;
+}
+
+.color-input {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 8px;
+}
+
+.color-input input[type="color"] {
+  height: 40px;
+  padding: 4px;
+}
+
+.color-input input:not([type="color"]) {
+  min-width: 0;
+}
+
 .phrase-field {
   min-height: 0;
   display: flex;
@@ -285,6 +306,73 @@ h1 {
   align-content: start;
 }
 
+.asset-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 260px));
+  gap: 18px;
+  align-items: start;
+  margin-bottom: 22px;
+}
+
+.asset-picker h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.asset-preview {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(45deg, #f0eee7 25%, transparent 25%),
+    linear-gradient(-45deg, #f0eee7 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #f0eee7 75%),
+    linear-gradient(-45deg, transparent 75%, #f0eee7 75%);
+  background-color: white;
+  background-size: 16px 16px;
+  background-position:
+    0 0,
+    0 8px,
+    8px -8px,
+    -8px 0;
+  display: grid;
+  place-items: center;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.asset-preview.square {
+  width: 120px;
+  height: 120px;
+}
+
+.asset-preview.tab {
+  width: 144px;
+  height: 111px;
+}
+
+.asset-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mini-button,
+.stamp-tools button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  color: var(--ink);
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.stamp-card {
+  display: grid;
+  gap: 8px;
+}
+
 .stamp {
   aspect-ratio: 37 / 32;
   border: 1px solid var(--line);
@@ -305,6 +393,25 @@ h1 {
   place-items: center;
   overflow: hidden;
   box-shadow: var(--shadow);
+}
+
+.stamp-tools {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.stamp-tools span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.stamp-tools .tool-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
 }
 
 .stamp img {
@@ -360,5 +467,13 @@ h1 {
   .toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .style-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .asset-picker {
+    grid-template-columns: 1fr;
   }
 }
