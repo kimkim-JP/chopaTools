@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
-import { demoSvgDataUrl } from "@/lib/demo-image";
-import { buildStampPrompt, type StampRequest } from "@/lib/prompt";
+import { demoSheetSvgDataUrl } from "@/lib/demo-image";
+import { buildStampSheetPrompt, type StampRequest } from "@/lib/prompt";
 
 export const runtime = "nodejs";
 
@@ -27,32 +27,39 @@ export async function POST(request: Request) {
     mood: body.mood,
     style: body.style,
     count,
-    phrases: body.phrases ?? ""
+    phrases: body.phrases ?? "",
+    textColor: body.textColor ?? "#111111",
+    strokeColor: body.strokeColor ?? "#ffffff",
+    strokeWidth: Number(body.strokeWidth ?? 3)
   };
+  const sheetCount = Math.ceil(count / 8);
+  const phrases = input.phrases.split(/\r?\n/).map((phrase) => phrase.trim());
 
   if (process.env.NEXT_PUBLIC_DEMO_MODE === "true" || !process.env.OPENAI_API_KEY) {
-    const labels = input.phrases
-      .split(/\r?\n/)
-      .map((phrase) => phrase.trim())
-      .filter(Boolean);
-
     return NextResponse.json({
       mode: "demo",
-      images: Array.from({ length: count }, (_, index) =>
-        demoSvgDataUrl(labels[index % Math.max(labels.length, 1)] ?? "Stamp", index)
+      sheets: Array.from({ length: sheetCount }, (_, sheetIndex) =>
+        demoSheetSvgDataUrl({
+          labels: phrases.slice(sheetIndex * 8, sheetIndex * 8 + 8),
+          textColor: input.textColor,
+          strokeColor: input.strokeColor,
+          strokeWidth: input.strokeWidth,
+          sheetIndex
+        })
       )
     });
   }
 
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   const model = process.env.IMAGE_MODEL ?? "gpt-image-1";
-  const images: string[] = [];
+  const sheets: string[] = [];
 
-  for (let index = 0; index < count; index += 1) {
+  for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex += 1) {
     const result = await client.images.generate({
       model,
-      prompt: buildStampPrompt(input, index),
-      size: "1024x1024",
+      prompt: buildStampSheetPrompt(input, sheetIndex),
+      size: "1024x1536",
+      quality: "low",
       n: 1
     });
 
@@ -61,8 +68,8 @@ export async function POST(request: Request) {
       throw new Error("Image generation returned no image data.");
     }
 
-    images.push(`data:image/png;base64,${image}`);
+    sheets.push(`data:image/png;base64,${image}`);
   }
 
-  return NextResponse.json({ mode: "api", images });
+  return NextResponse.json({ mode: "api", sheets });
 }
